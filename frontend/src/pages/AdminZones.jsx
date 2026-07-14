@@ -6,6 +6,11 @@ export default function AdminZones() {
   const [form, setForm] = useState({ name: '', code: '', pincodes: '' });
   const [error, setError] = useState('');
 
+  // Editing state: which zone id is being edited, and its draft values
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', code: '', pincodes: '' });
+  const [editError, setEditError] = useState('');
+
   async function fetchZones() {
     const { data } = await api.get('/admin/zones');
     setZones(data);
@@ -32,8 +37,39 @@ export default function AdminZones() {
   }
 
   async function deleteZone(id) {
+    if (editingId === id) cancelEdit();
     await api.delete(`/admin/zones/${id}`);
     fetchZones();
+  }
+
+  function startEdit(zone) {
+    setEditingId(zone._id);
+    setEditError('');
+    setEditForm({
+      name: zone.name,
+      code: zone.code,
+      pincodes: zone.pincodes.join(', '),
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditError('');
+  }
+
+  async function saveEdit(id) {
+    setEditError('');
+    try {
+      await api.put(`/admin/zones/${id}`, {
+        name: editForm.name,
+        code: editForm.code,
+        pincodes: editForm.pincodes.split(',').map((p) => p.trim()).filter(Boolean),
+      });
+      setEditingId(null);
+      fetchZones();
+    } catch (err) {
+      setEditError(err.response?.data?.message || 'Could not update zone');
+    }
   }
 
   return (
@@ -64,16 +100,51 @@ export default function AdminZones() {
           </tr>
         </thead>
         <tbody>
-          {zones.map((z) => (
-            <tr key={z._id}>
-              <td>{z.name}</td>
-              <td>{z.code}</td>
-              <td>{z.pincodes.join(', ')}</td>
-              <td>
-                <button className="btn btn-secondary" onClick={() => deleteZone(z._id)}>Delete</button>
-              </td>
+          {zones.map((z) =>
+            editingId === z._id ? (
+              <tr key={z._id}>
+                <td>
+                  <input
+                    value={editForm.name}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  />
+                </td>
+                <td>
+                  <input
+                    value={editForm.code}
+                    onChange={(e) => setEditForm({ ...editForm, code: e.target.value })}
+                  />
+                </td>
+                <td>
+                  <input
+                    value={editForm.pincodes}
+                    onChange={(e) => setEditForm({ ...editForm, pincodes: e.target.value })}
+                    placeholder="110001, 110002"
+                  />
+                  {editError && <p className="error">{editError}</p>}
+                </td>
+                <td>
+                  <button className="btn btn-secondary" onClick={() => saveEdit(z._id)}>Save</button>
+                  <button className="btn btn-secondary" onClick={cancelEdit}>Cancel</button>
+                </td>
+              </tr>
+            ) : (
+              <tr key={z._id}>
+                <td>{z.name}</td>
+                <td>{z.code}</td>
+                <td>{z.pincodes.join(', ')}</td>
+                <td>
+                  <button className="btn btn-secondary" onClick={() => startEdit(z)}>Edit</button>
+                  <button className="btn btn-secondary" onClick={() => deleteZone(z._id)}>Delete</button>
+                </td>
+              </tr>
+            )
+          )}
+          {zones.length === 0 && (
+            <tr>
+              <td colSpan="4">No zones yet — add one above.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
