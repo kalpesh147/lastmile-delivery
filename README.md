@@ -57,21 +57,13 @@ Fill in `.env`:
 
 ```
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/lastmile-delivery   # or your Atlas connection string
+MONGO_URI=mongodb://localhost:27017/lastmile-delivery  
 JWT_SECRET=<any long random string>
 JWT_EXPIRES_IN=7d
 
-# Optional - for real email notifications (free tier SMTP provider e.g. Gmail App Password, Brevo, Mailtrap)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
-SMTP_FROM=your_email@gmail.com
+
 ```
 
-> If SMTP is left unconfigured, the app still works fully — notifications are simply logged
-> as "skipped" in the `NotificationLog` collection instead of breaking the order flow.
 
 Seed the database with an admin user, sample zones, rate cards, and COD rules:
 
