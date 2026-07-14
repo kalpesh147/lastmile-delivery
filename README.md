@@ -6,6 +6,10 @@ customers are notified at every step of the delivery journey.
 
 Built for the Unthinkable Solutions assignment.
 
+## Live Demo
+- Frontend: https://lastmile-delivery-frontend.onrender.com
+- Backend API: https://lastmile-delivery-backend.onrender.com/api/health
+
 ---
 
 ## Tech Stack
