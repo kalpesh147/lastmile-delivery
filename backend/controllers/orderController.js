@@ -198,7 +198,7 @@ async function assignAgent(req, res, next) {
       status: order.status,
       actor: req.user._id,
       actorRole: req.user.role,
-      note: `Agent ${agent.name} assigned${req.body.auto ? ' (auto-assignment)' : ''}`,
+      note: `${agent.name} assigned as delivery agent${req.body.auto ? ' (auto-assignment)' : ''}`,
     });
     await order.save();
 
